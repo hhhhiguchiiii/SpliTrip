@@ -5,8 +5,8 @@ pages_build_output_dir = "dist"
 
 [[kv_namespaces]]
 binding = "TRIPS_KV"
-id = "75ccea0ca72a4c838bdffee5c0797631"
-preview_id = "be1aa2bf269d4516914c382cf3b58914"
+id = "672b7b1407304af8ac2a72e100b8c10a"
+preview_id = "672b7b1407304af8ac2a72e100b8c10a"
 
 [vars]
 ENVIRONMENT = "production"
