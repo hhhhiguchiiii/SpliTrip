@@ -218,6 +218,8 @@ export function validateAndConvertTrip(data: any): Trip {
     updatedAt: data.updatedAt,
     members,
     receipts,
-    subgroups
+    subgroups,
+    // 後方互換性: memoがない場合はundefined
+    memo: typeof data.memo === 'string' ? data.memo : undefined
   }
 }

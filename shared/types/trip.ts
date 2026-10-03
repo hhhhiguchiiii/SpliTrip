@@ -11,4 +11,5 @@ export type Trip = {
   members: Member[]       // メンバー配列
   receipts: Receipt[]     // レシート配列
   subgroups: Subgroup[]   // サブグループ配列（デフォルト値: []）
+  memo?: string           // 旅行メモ・しおり（任意）
 }
