@@ -4,6 +4,34 @@ import { getTrip, updateTrip } from '../api/tripApi'
 import type { Trip } from '../../shared/types/trip'
 
 /**
+ * テキスト中のURLを検出してリンク付きのReact要素に変換する
+ */
+function renderContentWithLinks(content: string) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g
+  const parts = content.split(urlRegex)
+  return parts.map((part, i) => {
+    if (urlRegex.test(part)) {
+      return (
+        <a
+          key={i}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            color: '#1565C0',
+            wordBreak: 'break-all',
+            overflowWrap: 'anywhere'
+          }}
+        >
+          {part}
+        </a>
+      )
+    }
+    return <span key={i}>{part}</span>
+  })
+}
+
+/**
  * メモ詳細ページ
  * - メモのタイトルと内容を表示
  * - 編集ボタンで編集モードに切替
@@ -249,12 +277,17 @@ function MemoDetailPage() {
               borderRadius: '4px',
               border: '1px solid #f0e68c',
               whiteSpace: 'pre-wrap',
+              wordBreak: 'break-all',
+              overflowWrap: 'anywhere',
               fontSize: '15px',
               lineHeight: '1.7',
               minHeight: '120px'
             }}
           >
-            {memo.content || <span style={{ color: '#aaa' }}>内容なし</span>}
+            {memo.content
+              ? renderContentWithLinks(memo.content)
+              : <span style={{ color: '#aaa' }}>内容なし</span>
+            }
           </div>
           <p style={{ color: '#999', fontSize: '12px', marginTop: '8px' }}>
             更新: {new Date(memo.updatedAt).toLocaleString('ja-JP')}
