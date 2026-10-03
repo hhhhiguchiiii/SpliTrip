@@ -2,6 +2,7 @@ import { Trip } from '../types/trip'
 import { Member } from '../types/member'
 import { Receipt, SplitRatioInput, SplitFixedInput, SplitResult } from '../types/receipt'
 import { Subgroup, SubgroupMemberRatio } from '../types/subgroup'
+import { TripMemo } from '../types/memo'
 
 /**
  * シリアライゼーション: TypeScriptオブジェクト → JSON文字列
@@ -210,6 +211,37 @@ export function validateAndConvertTrip(data: any): Trip {
   })
   
   // Tripオブジェクトの構築
+  // 後方互換性: memosがない場合は空配列、memo（旧フィールド）は無視
+  const memosData = data.memos !== undefined ? data.memos : []
+  if (!Array.isArray(memosData)) {
+    throw new Error('Invalid trip data: memos must be an array')
+  }
+
+  const memos: TripMemo[] = memosData.map((m: any, index: number) => {
+    if (!m.id || typeof m.id !== 'string') {
+      throw new Error(`Invalid memo at index ${index}: id is required`)
+    }
+    if (!m.title || typeof m.title !== 'string') {
+      throw new Error(`Invalid memo at index ${index}: title is required`)
+    }
+    if (typeof m.content !== 'string') {
+      throw new Error(`Invalid memo at index ${index}: content must be a string`)
+    }
+    if (!m.createdAt || typeof m.createdAt !== 'string') {
+      throw new Error(`Invalid memo at index ${index}: createdAt is required`)
+    }
+    if (!m.updatedAt || typeof m.updatedAt !== 'string') {
+      throw new Error(`Invalid memo at index ${index}: updatedAt is required`)
+    }
+    return {
+      id: m.id,
+      title: m.title,
+      content: m.content,
+      createdAt: m.createdAt,
+      updatedAt: m.updatedAt
+    }
+  })
+
   return {
     tripId: data.tripId,
     tripName: data.tripName,
@@ -219,7 +251,6 @@ export function validateAndConvertTrip(data: any): Trip {
     members,
     receipts,
     subgroups,
-    // 後方互換性: memoがない場合はundefined
-    memo: typeof data.memo === 'string' ? data.memo : undefined
+    memos
   }
 }

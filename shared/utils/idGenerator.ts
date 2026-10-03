@@ -35,3 +35,13 @@ export function generateReceiptId(existingReceiptCount: number): string {
 export function generateSubgroupId(existingSubgroupCount: number): string {
   return `sg${existingSubgroupCount + 1}`
 }
+
+/**
+ * メモIDを生成する
+ * 形式: memo_{ランダム文字列}
+ * 例: memo_abc123
+ */
+export function generateMemoId(): string {
+  const random = Math.random().toString(36).substring(2, 8)
+  return `memo_${random}`
+}

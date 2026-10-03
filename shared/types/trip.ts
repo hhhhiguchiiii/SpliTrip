@@ -1,6 +1,7 @@
 import { Member } from './member'
 import { Receipt } from './receipt'
 import { Subgroup } from './subgroup'
+import { TripMemo } from './memo'
 
 export type Trip = {
   tripId: string          // 一意の旅行ID（例: trip_20260308_abc123）
@@ -11,5 +12,5 @@ export type Trip = {
   members: Member[]       // メンバー配列
   receipts: Receipt[]     // レシート配列
   subgroups: Subgroup[]   // サブグループ配列（デフォルト値: []）
-  memo?: string           // 旅行メモ・しおり（任意）
+  memos: TripMemo[]       // 旅行メモ配列（デフォルト値: []）
 }

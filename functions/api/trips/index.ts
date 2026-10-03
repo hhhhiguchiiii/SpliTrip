@@ -80,7 +80,8 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       updatedAt: new Date().toISOString(),
       members,
       receipts: [],
-      subgroups: [] // デフォルト値（要件 9.2）
+      subgroups: [], // デフォルト値（要件 9.2）
+      memos: []      // デフォルト値
     }
     
     // KVに保存（要件 6.1, 6.2）

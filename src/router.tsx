@@ -7,6 +7,8 @@ import ReceiptListPage from './pages/ReceiptListPage'
 import ReceiptEditPage from './pages/ReceiptEditPage'
 import SummaryPage from './pages/SummaryPage'
 import MemberDetailPage from './pages/MemberDetailPage'
+import MemoInputPage from './pages/MemoInputPage'
+import MemoDetailPage from './pages/MemoDetailPage'
 
 /**
  * アプリケーションルーティング設定
@@ -41,6 +43,12 @@ function Router() {
       
       {/* メンバー精算詳細ページ - 特定メンバーの立替・負担詳細 */}
       <Route path="/trip/:tripId/summary/:memberId" element={<MemberDetailPage />} />
+
+      {/* メモ新規作成ページ */}
+      <Route path="/trip/:tripId/memo/new" element={<MemoInputPage />} />
+
+      {/* メモ詳細・編集ページ */}
+      <Route path="/trip/:tripId/memo/:memoId" element={<MemoDetailPage />} />
     </Routes>
   )
 }

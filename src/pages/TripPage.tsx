@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import { getTrip, updateTrip } from '../api/tripApi'
+import { useState, useEffect } from 'react'
+import { useParams, Link, useNavigate } from 'react-router-dom'
+import { getTrip } from '../api/tripApi'
 import type { Trip } from '../../shared/types/trip'
 import UsageGuideModal from '../components/UsageGuideModal'
 
@@ -15,14 +15,11 @@ import UsageGuideModal from '../components/UsageGuideModal'
  */
 function TripPage() {
   const { tripId } = useParams<{ tripId: string }>()
+  const navigate = useNavigate()
   const [trip, setTrip] = useState<Trip | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isGuideOpen, setIsGuideOpen] = useState(false)
-  const [isEditingMemo, setIsEditingMemo] = useState(false)
-  const [memoValue, setMemoValue] = useState('')
-  const [isSavingMemo, setIsSavingMemo] = useState(false)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   // 旅行データを取得
   useEffect(() => {
@@ -36,7 +33,6 @@ function TripPage() {
       try {
         const tripData = await getTrip(tripId)
         setTrip(tripData)
-        setMemoValue(tripData.memo ?? '')
         setError(null)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'サーバーエラーが発生しました')
@@ -47,33 +43,6 @@ function TripPage() {
 
     fetchTrip()
   }, [tripId])
-
-  // メモ編集開始
-  const handleMemoEdit = () => {
-    setIsEditingMemo(true)
-    setTimeout(() => textareaRef.current?.focus(), 0)
-  }
-
-  // メモ保存
-  const handleMemoSave = async () => {
-    if (!trip || !tripId) return
-    setIsSavingMemo(true)
-    try {
-      const updated = await updateTrip({ ...trip, memo: memoValue })
-      setTrip(updated)
-      setIsEditingMemo(false)
-    } catch (err) {
-      // 保存失敗時はそのまま編集モードを維持
-    } finally {
-      setIsSavingMemo(false)
-    }
-  }
-
-  // メモ編集キャンセル
-  const handleMemoCancel = () => {
-    setMemoValue(trip?.memo ?? '')
-    setIsEditingMemo(false)
-  }
 
   // ローディング中
   if (isLoading) {
@@ -130,92 +99,50 @@ function TripPage() {
         </p>
       </div>
 
-      {/* メモ欄 */}
+      {/* メモ一覧 */}
       <div style={{ marginBottom: '30px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
           <strong>📝 旅行メモ</strong>
-          {!isEditingMemo && (
-            <button
-              onClick={handleMemoEdit}
-              style={{
-                padding: '2px 10px',
-                fontSize: '13px',
-                cursor: 'pointer',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                backgroundColor: '#fff'
-              }}
-            >
-              編集
-            </button>
-          )}
+          <button
+            onClick={() => navigate(`/trip/${tripId}/memo/new`)}
+            style={{
+              padding: '6px 14px',
+              backgroundColor: '#4CAF50',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              fontSize: '14px'
+            }}
+          >
+            ＋ メモを追加
+          </button>
         </div>
-        {isEditingMemo ? (
-          <div>
-            <textarea
-              ref={textareaRef}
-              value={memoValue}
-              onChange={e => setMemoValue(e.target.value)}
-              rows={6}
-              style={{
-                width: '100%',
-                padding: '10px',
-                fontSize: '15px',
-                borderRadius: '4px',
-                border: '1px solid #ccc',
-                boxSizing: 'border-box',
-                resize: 'vertical'
-              }}
-              placeholder="旅行のしおりとして自由にメモを残せます"
-            />
-            <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+        {trip.memos.length === 0 ? (
+          <p style={{ color: '#aaa', fontSize: '14px', margin: 0 }}>メモはまだありません</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {trip.memos.map(memo => (
               <button
-                onClick={handleMemoSave}
-                disabled={isSavingMemo}
+                key={memo.id}
+                onClick={() => navigate(`/trip/${tripId}/memo/${memo.id}`)}
                 style={{
-                  padding: '8px 20px',
-                  backgroundColor: '#4CAF50',
-                  color: 'white',
-                  border: 'none',
+                  display: 'block',
+                  width: '100%',
+                  padding: '12px 16px',
+                  backgroundColor: '#fffde7',
+                  border: '1px solid #f0e68c',
                   borderRadius: '4px',
-                  cursor: isSavingMemo ? 'not-allowed' : 'pointer',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  fontSize: '15px',
                   fontWeight: 'bold'
                 }}
               >
-                {isSavingMemo ? '保存中...' : '保存'}
+                📄 {memo.title}
               </button>
-              <button
-                onClick={handleMemoCancel}
-                disabled={isSavingMemo}
-                style={{
-                  padding: '8px 20px',
-                  backgroundColor: '#9E9E9E',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
-                }}
-              >
-                キャンセル
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div
-            onClick={handleMemoEdit}
-            style={{
-              padding: '10px',
-              minHeight: '60px',
-              backgroundColor: '#fffde7',
-              borderRadius: '4px',
-              border: '1px solid #f0e68c',
-              whiteSpace: 'pre-wrap',
-              cursor: 'pointer',
-              color: memoValue ? '#333' : '#aaa',
-              fontSize: '15px'
-            }}
-          >
-            {memoValue || 'タップしてメモを追加...'}
+            ))}
           </div>
         )}
       </div>
